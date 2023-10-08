@@ -12,6 +12,7 @@ const contactAddSchema = Joi.object({
     name: Joi.string().required(),
     email: Joi.string().email({ tlds: { allow: false } }).required(),
     phone: Joi.string().pattern(/^\(\d{3}\) \d{3}-\d{4}$/).required(),
+    favorite: Joi.boolean(),
 })
     .unknown(false)
     .messages(errorMessages);
