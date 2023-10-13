@@ -1,6 +1,7 @@
 const express = require('express');
+
 const controllers = require('../../controllers/contacts-controller');
-const {contactAddSchema, contactUpdateFavoriteSchema} = require('../../schemas/contact-schemas');
+const { contactAddSchema, contactUpdateFavoriteSchema } = require('../../schemas/contact-schemas');
 const { isEmptyBody, isEmptyFavoriteBody, isValidId } = require('../../middlewares');
 const { validateBody } = require('../../decorators');
 
