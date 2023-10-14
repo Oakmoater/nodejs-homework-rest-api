@@ -6,10 +6,6 @@ const { HandleSaveError, runValidatorsAtUpdate } = require("./hooks");
 const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 const userSchema = new Schema({
-    username: {
-        type: String,
-        required: true,
-    },
     email: {
         type: String,
         match: emailRegexp,
@@ -24,9 +20,11 @@ const userSchema = new Schema({
     subscription: {
         type: String,
         enum: ["starter", "pro", "business"],
-        default: "starter"
+        default: "starter",
     },
-    token: String
+    token: {
+        type: String,
+    }
 }, { versionKey: false, timestamps: true })
 
 userSchema.post("save", HandleSaveError);
@@ -37,14 +35,9 @@ userSchema.post("findOneAndUpdate", HandleSaveError);
 
 const User = model("user", userSchema);
 
-const userSignupSchema = Joi.object({
-    username: Joi.string().required(),
+const userJoiSchema = Joi.object({
     email: Joi.string().pattern(emailRegexp).required(),
     password: Joi.string().min(6).required(),
 })
 
-const userSigninSchema = Joi.object({
-    email: Joi.string().pattern(emailRegexp).required(),
-    password: Joi.string().min(6).required(),
-})
-module.exports = { User, userSignupSchema, userSigninSchema };
+module.exports = { User, userJoiSchema };

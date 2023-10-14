@@ -1,21 +1,20 @@
 const express = require('express');
 
 const controllers = require('../../controllers/users-controller');
-const { userSignupSchema, userSigninSchema } = require('../../models/User');
-const { isEmptyBody} = require('../../middlewares');
+const { userJoiSchema } = require('../../models/User');
+const { isEmptyBody, authenticate } = require('../../middlewares');
 const { validateBody } = require('../../decorators');
 
-const userSignupValidate = validateBody(userSignupSchema);
-const userSigninValidate = validateBody(userSigninSchema);
+const userSignValidate = validateBody(userJoiSchema);
 
 const authRouter = express.Router();
 
-authRouter.post('/register', isEmptyBody, userSignupValidate, controllers.signup)
+authRouter.post('/register', isEmptyBody, userSignValidate, controllers.signup);
 
-authRouter.post('/login', isEmptyBody, userSigninValidate, controllers.signin)
+authRouter.post('/login', isEmptyBody, userSignValidate, controllers.signin);
 
-// POST /users/logout
+authRouter.get('/current', authenticate, controllers.getCurrent);
 
-// GET /users/current
+authRouter.post('/logout', authenticate, controllers.logout);
 
 module.exports = authRouter;
