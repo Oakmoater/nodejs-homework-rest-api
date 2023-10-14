@@ -6,7 +6,6 @@ const { ctrlWrapper } = require('../decorators');
 const { User } = require('../models/User');
 
 dotenv.config();
-
 const { JWT_SECRET } = process.env;
 
 
@@ -22,7 +21,6 @@ const signup = async (req, res) => {
         email: newUser.email,
         subscription: newUser.subscription,
     })
-
 }
 
 const signin = async (req, res) => {
@@ -68,9 +66,7 @@ const logout = async (req, res) => {
 const switchSubscription = async (req, res) => {
     const { _id } = req.user;
     const { subscription } = req.body;
-
     const updatedUser = await User.findByIdAndUpdate(_id, { subscription }, { new: true });
-
     res.json({
         email: updatedUser.email,
         subscription: updatedUser.subscription,
