@@ -40,4 +40,8 @@ const userJoiSchema = Joi.object({
     password: Joi.string().min(6).required(),
 })
 
-module.exports = { User, userJoiSchema };
+const userUpdateSubscriptionSchema = Joi.object({
+    subscription: Joi.string().required(),
+})
+
+module.exports = { User, userJoiSchema, userUpdateSubscriptionSchema };
