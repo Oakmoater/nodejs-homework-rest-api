@@ -1,6 +1,5 @@
 const { Schema, model } = require("mongoose");
 const { HandleSaveError, runValidatorsAtUpdate } = require("./hooks");
-const { string } = require("joi");
 
 const contactSchema = new Schema({
     name: {
@@ -19,7 +18,7 @@ const contactSchema = new Schema({
         default: false,
     },
     avatarURL: {
-        type: string,
+        type: String,
         required: true,
     },
     owner: {
