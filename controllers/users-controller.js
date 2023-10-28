@@ -1,12 +1,16 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const gravatar = require('gravatar');
+const path = require('path');
+const Jimp = require('jimp');
 const { HttpError } = require('../helpers');
 const { ctrlWrapper } = require('../decorators');
 const { User } = require('../models/User');
 
 dotenv.config();
 const { JWT_SECRET } = process.env;
+const avatarPath = path.resolve("public", "avatars");
 
 
 const signup = async (req, res) => {
@@ -15,8 +19,13 @@ const signup = async (req, res) => {
     if (user) {
         throw HttpError(409, `${email} already in use`);
     }
+    const avatarURL = gravatar.url(email);
     const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({...req.body, password: hashPassword});
+    const newUser = await User.create({
+        ...req.body,
+        password: hashPassword,
+        avatarURL,
+    });
     res.status(201).json({
         email: newUser.email,
         subscription: newUser.subscription,
@@ -35,7 +44,7 @@ const signin = async (req, res) => {
     }
     const payload = {
         id: user._id,
-    }
+    };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "23h" });
     await User.findByIdAndUpdate(user._id, { token });
     res.json({
@@ -73,10 +82,29 @@ const switchSubscription = async (req, res) => {
     });
 }
 
+const updateAvatar = async (req, res) => {
+    const { _id } = req.user;
+    const { path: tempUpload, originalname } = req.file;
+    const filename = `${_id}_${originalname}`;
+    const resultUpload = path.join(avatarPath, filename);
+    try {
+        const avatar = await Jimp.read(tempUpload);
+        avatar.resize(250, 250).quality(70).write(resultUpload);
+        const avatarURL = path.join("avatars", filename);
+        await User.findByIdAndUpdate(_id, { avatarURL });
+        res.json({
+            avatarURL,
+        });
+    } catch {
+        throw HttpError(500);
+    }
+};
+
 module.exports = {
     signup: ctrlWrapper(signup),
     signin: ctrlWrapper(signin),
     getCurrent: ctrlWrapper(getCurrent),
     logout: ctrlWrapper(logout),
     switchSubscription: ctrlWrapper(switchSubscription),
+    updateAvatar: ctrlWrapper(updateAvatar),
 }

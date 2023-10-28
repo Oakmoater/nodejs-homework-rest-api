@@ -1,7 +1,10 @@
 const { HttpError } = require('../helpers');
 const { ctrlWrapper } = require('../decorators');
 const Contact = require('../models/Contact');
+const fs = require('fs/promises');
+const path = require('path');
 
+const avatarPath = path.resolve("public", "avatars");
 
 const getAllContacts = async (req, res) => {
     const { _id: owner } = req.user;
@@ -27,7 +30,11 @@ const getContactById = async (req, res) => {
 
 const addContact = async (req, res) => {
     const { _id: owner } = req.user;
-    const result = await Contact.create({...req.body, owner});
+    const { path: oldPath, filename } = req.file;
+    const newPath = path.join(avatarPath, filename);
+    await fs.rename(oldPath, newPath);
+    const avatarURL  = path.join("avatars", filename)
+    const result = await Contact.create({ ...req.body, avatarURL, owner });
     res.status(201).json(result);
 };
 

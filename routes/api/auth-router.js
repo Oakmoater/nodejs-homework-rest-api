@@ -2,7 +2,7 @@ const express = require('express');
 
 const controllers = require('../../controllers/users-controller');
 const { userJoiSchema, userUpdateSubscriptionSchema } = require('../../models/User');
-const { isEmptyBody, authenticate, isEmptySubscriptionBody } = require('../../middlewares');
+const { isEmptyBody, authenticate, isEmptySubscriptionBody, upload } = require('../../middlewares');
 const { validateBody } = require('../../decorators');
 
 const userSignValidate = validateBody(userJoiSchema);
@@ -19,5 +19,7 @@ authRouter.get('/current', authenticate, controllers.getCurrent);
 authRouter.post('/logout', authenticate, controllers.logout);
 
 authRouter.patch('/', authenticate, isEmptySubscriptionBody, userUpdateSubscriptionValidate, controllers.switchSubscription);
+
+authRouter.patch('/avatars', upload.single('avatar'), authenticate, controllers.updateAvatar);
 
 module.exports = authRouter;
