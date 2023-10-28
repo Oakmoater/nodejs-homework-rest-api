@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const gravatar = require('gravatar');
 const path = require('path');
-const fs = require('fs/promises');
+const Jimp = require('jimp');
 const { HttpError } = require('../helpers');
 const { ctrlWrapper } = require('../decorators');
 const { User } = require('../models/User');
@@ -83,15 +83,22 @@ const switchSubscription = async (req, res) => {
 }
 
 const updateAvatar = async (req, res) => {
-    // const addContact = async (req, res) => {
-    // const { _id: owner } = req.user;
-    // const { path: oldPath, filename } = req.file;
-    // const newPath = path.join(avatarPath, filename);
-    // await fs.rename(oldPath, newPath);
-    // const avatarURL  = path.join("avatars", filename)
-    // const result = await Contact.create({ ...req.body, avatarURL, owner });
-    // res.status(201).json(result);
-}
+    const { _id } = req.user;
+    const { path: tempUpload, originalname } = req.file;
+    const filename = `${_id}_${originalname}`;
+    const resultUpload = path.join(avatarPath, filename);
+    try {
+        const avatar = await Jimp.read(tempUpload);
+        avatar.resize(250, 250).quality(70).write(resultUpload);
+        const avatarURL = path.join("avatars", filename);
+        await User.findByIdAndUpdate(_id, { avatarURL });
+        res.json({
+            avatarURL,
+        });
+    } catch {
+        throw HttpError(500);
+    }
+};
 
 module.exports = {
     signup: ctrlWrapper(signup),
