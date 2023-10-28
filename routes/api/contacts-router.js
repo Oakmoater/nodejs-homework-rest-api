@@ -16,7 +16,7 @@ contactsRouter.get('/', controllers.getAllContacts);
 
 contactsRouter.get('/:id', isValidId, controllers.getContactById);
 
-contactsRouter.post('/', upload.single("avatar"), isEmptyBody, contactAddValidate, controllers.addContact);
+contactsRouter.post('/', upload.single('avatar'), isEmptyBody, contactAddValidate, controllers.addContact);
 
 contactsRouter.put('/:id', isValidId, isEmptyBody, contactAddValidate, controllers.updateContact);
 

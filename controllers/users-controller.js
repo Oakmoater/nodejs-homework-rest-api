@@ -1,12 +1,16 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const gravatar = require('gravatar');
+const path = require('path');
+const fs = require('fs/promises');
 const { HttpError } = require('../helpers');
 const { ctrlWrapper } = require('../decorators');
 const { User } = require('../models/User');
 
 dotenv.config();
 const { JWT_SECRET } = process.env;
+const avatarPath = path.resolve("public", "avatars");
 
 
 const signup = async (req, res) => {
@@ -15,8 +19,13 @@ const signup = async (req, res) => {
     if (user) {
         throw HttpError(409, `${email} already in use`);
     }
+    const avatarURL = gravatar.url(email);
     const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({...req.body, password: hashPassword});
+    const newUser = await User.create({
+        ...req.body,
+        password: hashPassword,
+        avatarURL,
+    });
     res.status(201).json({
         email: newUser.email,
         subscription: newUser.subscription,
@@ -73,10 +82,22 @@ const switchSubscription = async (req, res) => {
     });
 }
 
+const updateAvatar = async (req, res) => {
+    // const addContact = async (req, res) => {
+    // const { _id: owner } = req.user;
+    // const { path: oldPath, filename } = req.file;
+    // const newPath = path.join(avatarPath, filename);
+    // await fs.rename(oldPath, newPath);
+    // const avatarURL  = path.join("avatars", filename)
+    // const result = await Contact.create({ ...req.body, avatarURL, owner });
+    // res.status(201).json(result);
+}
+
 module.exports = {
     signup: ctrlWrapper(signup),
     signin: ctrlWrapper(signin),
     getCurrent: ctrlWrapper(getCurrent),
     logout: ctrlWrapper(logout),
     switchSubscription: ctrlWrapper(switchSubscription),
+    updateAvatar: ctrlWrapper(updateAvatar),
 }
