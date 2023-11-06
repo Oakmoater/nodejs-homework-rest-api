@@ -1,28 +1,30 @@
-// https://github.com/sendgrid/sendgrid-nodejs
-
-const sgMail = require('@sendgrid/mail')
-const dotenv = require('dotenv');
-
-dotenv.config();
-
-const { SENDGRID_API_TOKEN, SENDGRID_NET_MAIL } = process.env;
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 
-sgMail.setApiKey(SENDGRID_API_TOKEN)
+const sendEmail = async ({ email, verificationToken }) => {
+  const config = {
+    host: "smtp.meta.ua",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.VERIFI_EMAIL_SENDER,
+      pass: process.env.VERIFI_EMAIL_PASSWORD,
+    },
+  };
 
-const msg = {
-  to: 'oakmoater@gmail.com',
-  from: SENDGRID_NET_MAIL,
-  subject: 'Sending with SendGrid is Fun',
-  text: 'and easy to do anywhere, even with Node.js',
-  html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-}
+  const transporter = nodemailer.createTransport(config);
 
-sgMail
-  .send(msg)
-  .then(() => {
-    console.log('Email sent')
-  })
-  .catch((error) => {
-    console.error(error)
-  })
+  const baseURL = process.env.BASE_URL;
+
+  const emailOptions = {
+    to: email,
+    from: process.env.VERIFI_EMAIL_SENDER,
+    subject: "Confirm registration",
+    html: `<a href="${baseURL}/users/verify/${verificationToken}" target="_blank">Please, confirm your registration by press this reference</a>`,
+  };
+
+  await transporter.sendMail(emailOptions);
+};
+
+module.exports = sendEmail;
