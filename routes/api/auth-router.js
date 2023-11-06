@@ -12,6 +12,10 @@ const authRouter = express.Router();
 
 authRouter.post('/register', isEmptyBody, userSignValidate, controllers.signup);
 
+authRouter.get('/verify/:verificationToken', controllers.verifyEmail);
+
+authRouter.post('/verify/', controllers.resendEmail);
+
 authRouter.post('/login', isEmptyBody, userSignValidate, controllers.signin);
 
 authRouter.get('/current', authenticate, controllers.getCurrent);
